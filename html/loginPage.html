@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Page</title>
+  <link rel="stylesheet" href="../style/LoginStyle.css">
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="toggle-mode" id="toggleMode">🌞 Light</div>
+  <div class="card">
+    <div class="circle"></div>
+    <h2>Sign in</h2>
+    <p>to continue to your account</p>
+    <form action="/login" method="POST" id="loginForm">
+      <div class="input-container">
+        <input type="text" id="username" name="username" placeholder="Username">
+        <small class="error" id="usernameError"></small>
+      </div>
+
+      <div class="input-container">
+        <input type="password" id="password" name="password" placeholder="Password">
+        <small class="error" id="passwordError"></small>
+      </div>
+
+      <div class="checkbox-container">
+        <input type="checkbox" id="keep">
+        <label for="keep">&nbsp;Keep me signed in</label>
+      </div>
+
+      <button type="submit" value="Login">SIGN IN</button>
+    </form>
+    <div class="divider"></div>
+    <div class="create-account">
+      Don’t have an account? <a href="#">Create account</a>
+    </div>
+  </div>
+  <script src="./script/LoginScript.js"></script>
+</body>
+</html>

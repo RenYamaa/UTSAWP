@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Manager - Admin Panel</title>
+    <link rel="stylesheet" href="../style/managerStyle.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo" onclick="goHome()">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Manager Portal</div>
+            </div>
+            <div class="menu-button" onclick="toggleDropdown()">
+                <div class="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="dropdown" id="dropdown">
+                    <div class="dropdown-item" onclick="signOut()">
+                        <span>🚪</span> Sign Out
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-title" id="welcomeTitle">Selamat Datang Admin!</div>
+            <div class="welcome-subtitle">
+                Anda login sebagai: <span class="role-badge" id="roleBadge">Manager Katalog</span>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="content-area active">
+            <div class="menu-grid">
+                <div class="menu-card" onclick="showPage('userPage')">
+                    <div class="menu-icon">👥</div>
+                    <div class="menu-title">Master Data User</div>
+                    <div class="menu-description">
+                        Kelola data pengguna, tambah user baru, edit profil, dan atur hak akses untuk semua pengguna sistem.
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </div>
+
+                <div class="menu-card" onclick="showPage('productPage')">
+                    <div class="menu-icon">📦</div>
+                    <div class="menu-title">Master Data Produk</div>
+                    <div class="menu-description">
+                        Manajemen katalog produk lengkap, termasuk penambahan, pengeditan, penghapusan, dan update stok produk.
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </div>
+
+                <div class="menu-card" onclick="alert('Fitur Laporan Penjualan akan segera hadir!')">
+                    <div class="menu-icon">📊</div>
+                    <div class="menu-title">Laporan Penjualan</div>
+                    <div class="menu-description">
+                        Lihat dan analisis laporan penjualan secara detail dengan grafik dan statistik yang komprehensif.
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Master Data User Page -->
+        <div id="userPage" class="content-area">
+            <div class="detail-page">
+                <div class="page-header">
+                    <h2 class="page-title">👥 Master Data User</h2>
+                    <button class="back-btn" onclick="showPage('mainMenu')">
+                        ← Kembali
+                    </button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-add" onclick="openUserModal('add')">
+                        ➕ Tambah User Baru
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Master Data Produk Page -->
+        <div id="productPage" class="content-area">
+            <div class="detail-page">
+                <div class="page-header">
+                    <h2 class="page-title">📦 Master Data Produk</h2>
+                    <button class="back-btn" onclick="showPage('mainMenu')">
+                        ← Kembali
+                    </button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-add" onclick="openProductModal('add')">
+                        ➕ Tambah Produk Baru
+                    </button>
+                </div>
+    
+                <div class="table-container">
+                    <div class="search-container">
+                        <input type="text" id="managerSearchInput" placeholder="🔍 Cari produk... (nama / ID)">
+                    </div>
+                    <table id="productTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Produk</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
+                                <th>Status</th>
+                                <th>Deskripsi</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+
+    <!-- User Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header" id="userModalTitle">Tambah User Baru</div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" id="username" required placeholder="Masukkan username">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required placeholder="contoh@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required placeholder="Minimal 6 karakter">
+                </div>
+
+                <div class="form-group">
+                    <label for="Phone">Phone Number *</label>
+                    <input type="text" id="Phone" required placeholder="Masukkan No HP">
+                </div>
+     
+                <div class="form-group">
+                    <label for="Role">Role *</label>
+                    <select name="Role" id="Role">
+                        <option value="R01">Manager Katalog</option>
+                        <option value="R02">Staf Proses Pesanan</option>
+                        <option value="R03">Finance Coordinator</option>
+                        <option value="R04">User</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeUserModal()">Batal</button>
+                    <button type="submit" class="btn-submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header" id="productModalTitle">Tambah Produk Baru</div>
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="productId">
+
+                <div class="form-group">
+                    <label for="productCode">ID Produk (Opsional)</label>
+                    <input type="text" id="productCode" placeholder="Kosongkan untuk otomatis, atau masukkan manual (Contoh: A001)">
+                </div>
+
+                <div class="form-group">
+                    <label for="productName">Nama Produk *</label>
+                    <input type="text" id="productName" required placeholder="Masukkan nama produk">
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Harga (Rp) *</label>
+                    <input type="number" id="price" required min="0" placeholder="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stok/Kuantitas *</label>
+                    <input type="number" id="stock" required min="0" placeholder="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Deskripsi</label>
+                    <textarea id="description" placeholder="Masukkan deskripsi produk"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="productStatus">Status *</label>
+                    <select id="productStatus" required>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Tidak Aktif">Tidak Aktif</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeProductModal()">Batal</button>
+                    <button type="submit" class="btn-submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal confirm-box" onclick="event.stopPropagation()">
+            <div class="confirm-header" id="confirmTitle">Konfirmasi Aksi</div>
+            <div class="confirm-message" id="confirmMessage">
+                Apakah Anda yakin ingin melanjutkan tindakan ini?
+            </div>
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="closeConfirmModal()">Batal</button>
+                <button class="btn-submit" id="confirmYesBtn">Ya</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../script/managerScript.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemrosesan Pesanan - Comifuro</title>
+    <link rel="stylesheet" href="../style/stafStyle.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <img src="../images/Comifuro_logo.png" alt="Comifuro">
+            </div>
+            <div class="user-info">
+                <div class="dropdown">
+                    <button class="btn-menu" onclick="toggleDropdown()">
+                         Menu
+                    </button>
+                    <div class="dropdown-content" id="dropdownMenu">
+                        <button class="dropdown-item" onclick="signOut()" style="color: #e74c3c;">
+                            <span>🚪</span> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="orders-table">
+            <div class="search-container">
+                <input type="text" id="staffSearchInput" placeholder="🔍 Cari produk... (nama / ID)">
+            </div>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>ID Produk</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Status</th>
+                        <th>Deskripsi</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <tr><td colspan="6">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detail Pesanan</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+
+            </div>
+        </div>
+    </div>
+<script src="../script/stafScript.js"></script>
+</body>
+</html>
