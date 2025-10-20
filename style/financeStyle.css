@@ -1,0 +1,117 @@
+/* General Styling */
+:root {
+    --primary-color: #8e44ad; /* Ungu untuk finance */
+    --secondary-color: #2c3e50;
+    --background-blur: rgba(0,0,0,0.5);
+    --card-bg: white;
+    --text-color: #333;
+    --success-color: #27ae60;
+    --error-color: #c0392b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--background-blur); 
+    z-index: -1; 
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-image: url('../images/Comifuro Stock Photos.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-color);
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    background: var(--card-bg);
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.user-info { display: flex; align-items: center; gap: 20px; }
+.btn-logout {
+    padding: 10px 18px; border: none; border-radius: 8px;
+    background-color: #e74c3c; color: white; cursor: pointer;
+    font-weight: 600;
+}
+
+/* Content */
+.content-area {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+}
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.page-title { font-size: 28px; color: var(--secondary-color); }
+.filter-group label { margin-right: 10px; font-weight: 600; }
+.filter-group select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+
+/* Table */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background-color: var(--secondary-color); }
+th { padding: 15px; text-align: left; color: white; font-weight: 600; }
+tbody tr:nth-child(even) { background-color: #f8f9fa; }
+td { padding: 15px; border-bottom: 1px solid #eee; }
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+}
+.status-menunggu { background-color: #f39c12; }
+.status-berhasil { background-color: var(--success-color); }
+.status-gagal { background-color: var(--error-color); }
+
+.action-btns { display: flex; gap: 10px; }
+.action-btns button {
+    padding: 6px 12px; border: none; border-radius: 6px;
+    cursor: pointer; font-weight: 600; color: white;
+}
+.btn-approve { background-color: var(--success-color); }
+.btn-reject { background-color: var(--error-color); }
+
+/* Toast Notification (reuse) */
+.toast-notification {
+    position: fixed; top: 30px; right: 30px; padding: 16px 24px;
+    border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    font-weight: 600; z-index: 10000;
+    transform: translateX(120%);
+    transition: transform 0.4s ease;
+}
+.toast-notification.show { transform: translateX(0); }
+.toast-notification.success { background-color: var(--success-color); color: white; }
+.toast-notification.error { background-color: var(--error-color); color: white; }

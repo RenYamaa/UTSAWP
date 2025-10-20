@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Navigation Functions
+// Perubahan di managerScript.js (Fungsi showPage)
 function showPage(pageId) {
     document.querySelectorAll('.content-area').forEach(area => {
         area.classList.remove('active');
@@ -34,6 +35,10 @@ function showPage(pageId) {
         renderUserTable();
     } else if (pageId === 'productPage') {
         renderProductTable();
+    } else if (pageId === 'reportPage') { 
+        renderReportTable();
+    } else if (pageId === 'activationPage') {
+        renderActivationTable();
     }
 }
 
@@ -131,6 +136,27 @@ function handleUserSubmit(event) {
         sendUserToAPI(userData);
     }
 }
+
+function sendUserToAPI(userData) {
+    fetch('/api/user/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            showNotification(data.message, 'success');
+            closeUserModal();
+            renderUserTable();
+        }
+    })
+    .catch(err => {
+        console.error('Gagal menambahkan user:', err);
+        showNotification('❌ Gagal menambahkan user!', 'error');
+    });
+}
+
 
 function openUserModal(mode, userId = null) {
     const modal = document.getElementById('userModal');
@@ -366,6 +392,180 @@ function deleteProduct(productId) {
             .catch(err => showNotification('❌ Gagal menghapus produk!', 'error'));
     });
 }
+
+// ==========================================================
+// Q4: LOGIKA LAPORAN PENJUALAN
+// ==========================================================
+
+// Fungsi baru untuk merender tabel laporan (Q4a & Q4b)
+function renderReportTable() {
+    const tbody = document.getElementById('reportTableBody');
+    const totalEl = document.getElementById('reportTotal'); // Ambil elemen total
+    const searchInput = document.getElementById('reportSearchInput').value.trim();
+    const statusFilter = document.getElementById('reportStatusFilter').value;
+    
+    tbody.innerHTML = '<tr><td colspan="6">Memuat data laporan...</td></tr>';
+    totalEl.textContent = 'Menghitung...'; // Teks sementara
+
+    const url = `/api/report/sales?search=${searchInput}&status=${statusFilter}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Gagal memuat data laporan dari server.');
+            return response.json();
+        })
+        .then(reports => {
+            tbody.innerHTML = '';
+            let totalSales = 0; // Variabel untuk menyimpan total penjualan
+
+            if (reports.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="6">Tidak ada data laporan yang ditemukan.</td></tr>`;
+                 totalEl.textContent = 'Rp 0'; // Jika tidak ada data, totalnya 0
+                 return;
+            }
+            
+            reports.forEach(report => {
+                // Tambahkan nilai Total_Harga ke variabel totalSales
+                totalSales += parseFloat(report.Total_Harga);
+
+                const tr = document.createElement('tr');
+                const totalHargaFormatted = parseFloat(report.Total_Harga).toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                });
+
+                tr.innerHTML = `
+                    <td>${report.Order_ID}</td>
+                    <td>${report.Username}</td>
+                    <td>${new Date(report.Order_Date).toLocaleDateString('id-ID')}</td>
+                    <td><span class="status-badge status-${report.Order_Status.toLowerCase()}">${report.Order_Status}</span></td>
+                    <td>${report.Payment_Status || '-'}</td>
+                    <td>${totalHargaFormatted}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Setelah loop selesai, format dan tampilkan total penjualan di tfoot
+            totalEl.textContent = totalSales.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            });
+        })
+        .catch(error => {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${error.message}</td></tr>`;
+            totalEl.textContent = 'Error'; // Tampilkan error jika gagal
+            showNotification(`Gagal memuat laporan: ${error.message}`, 'error');
+        });
+}
+
+// Fungsi Print Laporan (Q4c)
+function printReport() {
+    // Sembunyikan elemen yang tidak perlu dicetak
+    const header = document.querySelector('.header');
+    const backBtn = document.querySelector('#reportPage .back-btn');
+    const actionButtons = document.querySelector('#reportPage .action-buttons');
+    const searchContainer = document.querySelector('#reportPage .search-container');
+
+    // Simpan display asli
+    const originalHeaderDisplay = header.style.display;
+    
+    // Sembunyikan
+    header.style.display = 'none';
+    backBtn.style.display = 'none';
+    actionButtons.style.display = 'none';
+    searchContainer.style.display = 'none';
+    
+    window.print(); // Perintah untuk mencetak
+
+    // Tampilkan kembali setelah print selesai
+    header.style.display = originalHeaderDisplay;
+    backBtn.style.display = '';
+    actionButtons.style.display = '';
+    searchContainer.style.display = '';
+}
+
+// Inisialisasi Event Listener untuk Search (Q4b)
+document.addEventListener('DOMContentLoaded', () => {
+    // ... kode DOMContentLoaded yang sudah ada ...
+    
+    const reportSearchInput = document.getElementById('reportSearchInput');
+    if (reportSearchInput) {
+        // Panggil renderTable setiap kali ada input (ketik)
+        reportSearchInput.addEventListener('input', renderReportTable);
+    }
+});
+
+
+// Fungsi Print (Q4c)
+function printReport() {
+    const header = document.querySelector('.header');
+    const actionButtons = document.querySelector('#reportPage .action-buttons');
+    const searchContainer = document.querySelector('#reportPage .search-container');
+
+    header.style.display = 'none';
+    actionButtons.style.display = 'none';
+    searchContainer.style.display = 'none';
+    document.querySelector('.page-header').style.borderBottom = 'none';
+
+    window.print(); 
+
+    header.style.display = '';
+    actionButtons.style.display = '';
+    searchContainer.style.display = '';
+    document.querySelector('.page-header').style.borderBottom = '';
+}
+
+function renderActivationTable() {
+    const tbody = document.getElementById('activationTableBody');
+    tbody.innerHTML = '<tr><td colspan="5">Memuat data...</td></tr>';
+
+    fetch('/api/users/pending')
+        .then(res => res.json())
+        .then(users => {
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Tidak ada user yang menunggu aktivasi.</td></tr>';
+                return;
+            }
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.User_ID}</td>
+                    <td>${user.Username}</td>
+                    <td>${user.Email}</td>
+                    <td>${user.Phone}</td>
+                    <td>
+                        <button class="btn-edit" style="background-color: #27ae60;" onclick="approveUser('${user.User_ID}')">
+                            ✔️ Aktifkan
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
+
+function approveUser(userId) {
+    if (!confirm(`Aktifkan user dengan ID: ${userId}?`)) return;
+
+    fetch(`/api/users/approve/${userId}`, { method: 'PUT' })
+        .then(res => res.json())
+        .then(data => {
+            showNotification(data.message, 'success');
+            renderActivationTable(); // Muat ulang tabel aktivasi
+            renderUserTable(); // Muat ulang tabel user utama juga
+        })
+        .catch(err => showNotification('Gagal mengaktifkan user!', 'error'));
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const reportPage = document.getElementById('reportPage');
+    if (reportPage) {
+    }
+});
 
 
 function closeModal() {

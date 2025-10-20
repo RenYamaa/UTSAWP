@@ -57,11 +57,20 @@
                     <div class="menu-arrow">→</div>
                 </div>
 
-                <div class="menu-card" onclick="alert('Fitur Laporan Penjualan akan segera hadir!')">
+                <div class="menu-card" onclick="showPage('reportPage')">
                     <div class="menu-icon">📊</div>
                     <div class="menu-title">Laporan Penjualan</div>
                     <div class="menu-description">
                         Lihat dan analisis laporan penjualan secara detail dengan grafik dan statistik yang komprehensif.
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </div>
+
+                <div class="menu-card" onclick="showPage('activationPage')">
+                    <div class="menu-icon">🔔</div>
+                    <div class="menu-title">Aktivasi User Baru</div>
+                    <div class="menu-description">
+                        Lihat daftar pengguna yang baru mendaftar dan butuh persetujuan untuk aktivasi akun.
                     </div>
                     <div class="menu-arrow">→</div>
                 </div>
@@ -141,6 +150,88 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <div id="reportPage" class="content-area">
+            <div class="detail-page">
+                <div class="page-header">
+                    <h2 class="page-title">📊 Laporan Penjualan</h2>
+                    <button class="back-btn" onclick="showPage('mainMenu')">
+                        ← Kembali
+                    </button>
+                </div>
+
+                <div class="action-buttons" style="justify-content: space-between;">
+                    <div class="filter-group">
+                        <label for="reportStatusFilter">Filter Status Order:</label>
+                        <select id="reportStatusFilter" onchange="renderReportTable()">
+                            <option value="Semua">Semua Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Diproses">Diproses</option>
+                            <option value="Dikirim">Dikirim</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Dibatalkan">Dibatalkan</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-add" onclick="printReport()">
+                        🖨️ Cetak Laporan
+                    </button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="reportSearchInput" placeholder="🔍 Cari ID Order / Username">
+                    </div>
+                
+                <div class="table-container">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>ID Order</th>
+                                <th>User</th>
+                                <th>Tanggal</th>
+                                <th>Status Order</th>
+                                <th>Status Bayar</th>
+                                <th>Total Harga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            </tbody>
+                        <tfoot>
+                                <tr>
+                                    <td colspan="5" class="total-label">Total Penjualan (dari data yang tampil)</td>
+                                    <td id="reportTotal" class="total-amount">Rp 0</td>
+                                </tr>
+                            </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="activationPage" class="content-area">
+        <div class="detail-page">
+            <div class="page-header">
+                <h2 class="page-title">🔔 Aktivasi User Baru</h2>
+                <button class="back-btn" onclick="showPage('mainMenu')">
+                    ← Kembali
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="activationTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activationTableBody">
+                        </tbody>
+                </table>
             </div>
         </div>
     </div>

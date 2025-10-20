@@ -1,0 +1,64 @@
+/* Styling ini mirip dengan login, tapi disesuaikan untuk register */
+:root {
+    --bg-image: url('../images/Comifuro Stock Photos.jpg');
+    --card-color: #ffffff;
+    --text-color: #333;
+    --input-bg: #f0f0f0;
+    --primary-color: #0078ff;
+}
+* { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+body {
+    margin: 0; display: flex; justify-content: center; align-items: center;
+    height: 100vh; background-color: #f5f6fa;
+    background-image: var(--bg-image); background-size: cover;
+    background-position: center;
+}
+.card {
+    position: relative;
+    z-index: 1;
+    background-color: var(--card-color);
+    width: 380px;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    
+    /* 👇 TAMBAHKAN BARIS INI 👇 */
+    animation: fadeInUp 0.7s ease-out forwards;
+}
+
+h2 { color: var(--text-color); margin-bottom: 6px; }
+p { color: var(--text-color); opacity: 0.7; font-size: 14px; margin-bottom: 25px; }
+input {
+    width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #ddd;
+    border-radius: 6px; background-color: var(--input-bg); color: var(--text-color);
+}
+button {
+    width: 100%; padding: 12px; border: none; background-color: var(--primary-color);
+    color: white; font-weight: 600; border-radius: 6px; cursor: pointer; margin-top: 15px;
+}
+.divider { margin: 25px 0; height: 1px; background: #eee; }
+.login-link { font-size: 14px; color: var(--text-color); }
+.login-link a { color: var(--primary-color); text-decoration: none; }
+.input-container { position: relative; text-align: left; margin-bottom: 10px; }
+.error { color: red; font-size: 12px; display: block; height: 16px; }
+
+.overlay {
+    position: absolute;
+    inset: 0; /* Cara singkat untuk: top: 0; right: 0; bottom: 0; left: 0; */
+    background-color: rgba(255, 255, 255, 0.4); /* Warna putih dengan transparansi 60% */
+    backdrop-filter: blur(3px); /* Efek blur pada background di belakangnya */
+}
+
+/* TAMBAHKAN INI DI BAGIAN PALING BAWAH file registerStyle.css */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px); /* Mulai dari 30px di bawah posisi asli */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);   /* Kembali ke posisi asli */
+    }
+}

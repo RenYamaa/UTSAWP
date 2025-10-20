@@ -768,3 +768,26 @@ tbody td {
         top: 20px;
     }
 }
+
+/* TAMBAHKAN KODE INI DI BAGIAN PALING BAWAH style/managerStyle.css */
+
+/* --- Styling untuk Total Laporan --- */
+tfoot tr {
+    background-color: #f8f9ff; /* Warna highlight yang soft */
+    border-top: 3px solid #667eea; /* Garis pemisah yang tebal */
+}
+
+.total-label, .total-amount {
+    padding: 16px 15px;
+    font-weight: 700; /* Tebalkan font */
+    font-size: 16px;  /* Sedikit perbesar font */
+    color: #2c3e50;
+}
+
+.total-label {
+    text-align: right; /* Rata kanan untuk label */
+}
+
+.total-amount {
+    color: #11998e; /* Warna hijau untuk angka total */
+}

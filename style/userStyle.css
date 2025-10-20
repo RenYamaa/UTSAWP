@@ -1,0 +1,484 @@
+/* General Styling */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --background-blur: rgba(0,0,0,0.5);
+    --card-bg: white;
+    --text-color: #333;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--background-blur); 
+    z-index: -1; 
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-image: url('../images/Comifuro Stock Photos.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-color);
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    background: var(--card-bg);
+    padding: 15px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.logo img {
+    height: 50px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#welcomeMessage {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.action-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background-color: #f0f0f0;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#cartBtn {
+    background-color: var(--primary-color);
+    color: white;
+    position: relative;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--error-color);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-logout {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* Catalog */
+.catalog-header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 15px;
+}
+.catalog-header h1 {
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.product-image-placeholder {
+    height: 180px;
+    background-color: #ecf0f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bdc3c7;
+}
+
+.product-info {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.product-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.product-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.product-stock {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.btn-add-cart {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-add-cart:hover {
+    background-color: #34495e;
+}
+
+.btn-add-cart:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+
+/* Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: white;
+    border-radius: 15px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    padding: 15px 25px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header h2 { font-size: 22px; }
+
+.close-btn {
+    background: none; border: none; font-size: 28px;
+    cursor: pointer; color: #7f8c8d;
+}
+
+.modal-body {
+    padding: 25px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer {
+    padding: 15px 25px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-price { font-size: 18px; font-weight: 600; }
+
+.btn-checkout {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--success-color);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-checkout:disabled { background-color: #95a5a6; }
+
+/* Cart Item Styles */
+.cart-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.cart-item:last-child { border-bottom: none; }
+.cart-item-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.cart-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: flex-end;
+}
+.item-quantity {
+    width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;
+}
+.btn-remove {
+    background: none; border: none; color: var(--error-color); cursor: pointer;
+}
+
+/* History Item Styles */
+.history-item {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+.history-item-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.history-item-body { display: flex; justify-content: space-between; font-size: 14px; }
+.status-pending { color: #f39c12; }
+.status-diproses { color: #3498db; }
+.status-dikirim { color: #8e44ad; }
+.status-selesai { color: #27ae60; }
+.status-dibatalkan { color: #e74c3c; }
+
+
+/* Toast Notification (reuse from managerStyle.css) */
+.toast-notification {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    font-weight: 600;
+    z-index: 10000;
+    transform: translateX(120%);
+    transition: transform 0.4s ease;
+}
+.toast-notification.show { transform: translateX(0); }
+.toast-notification.success { background-color: var(--success-color); color: white; }
+.toast-notification.error { background-color: var(--error-color); color: white; }
+
+.hamburger-btn {
+    display: none; /* Sembunyikan di desktop */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2000; /* Pastikan di atas elemen lain */
+}
+
+.hamburger-btn span {
+    width: 100%;
+    height: 3px;
+    background-color: var(--secondary-color);
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Aturan ketika layar menjadi kecil (misal: HP) */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+    }
+
+    .hamburger-btn {
+        display: flex; /* Tampilkan tombol hamburger di mobile */
+    }
+    
+    .nav-links {
+        /* Sembunyikan menu link di mobile secara default */
+        display: none; 
+        position: absolute;
+        top: 75px; /* Sesuaikan dengan tinggi header */
+        right: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 250px;
+        overflow: hidden;
+        flex-direction: column; /* Susun link ke bawah */
+        align-items: stretch; /* Penuhi lebar container */
+    }
+
+    /* Style untuk menu ketika aktif (diklik) */
+    .nav-links.active {
+        display: flex; /* Tampilkan menu */
+    }
+
+    /* Style untuk setiap item di dalam menu dropdown */
+    .nav-links #welcomeMessage,
+    .nav-links .action-btn {
+        text-align: left;
+        padding: 15px 20px;
+        margin: 0;
+        border-radius: 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .nav-links .action-btn:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-links .action-btn:hover {
+        background-color: #f8f9fa;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .nav-links #welcomeMessage {
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #fafafa;
+    }
+}
+
+/* --- Style untuk Nomor Resi di Riwayat Pesanan --- */
+.history-item-resi {
+    margin-top: 12px;
+    padding: 10px 15px;
+    background-color: #e8f4fd; /* Warna highlight biru muda */
+    border-left: 4px solid #3498db;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+}
+
+.history-item-resi span {
+    font-weight: 600;
+    color: #2c3e50;
+    background-color: #fff;
+    padding: 2px 8px;
+    border-radius: 5px;
+    margin-left: 8px;
+}
+
+/* TAMBAHKAN KODE INI DI BAGIAN PALING BAWAH style/userStyle.css */
+
+/* --- Checkout Modal Styles --- */
+.checkout-form {
+    padding-top: 10px;
+    padding-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--secondary-color);
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-option:hover {
+    background-color: #f8f9fa;
+    border-color: var(--primary-color);
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 10px;
+}
+
+.payment-option input[type="radio"]:checked + span {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.btn-cancel {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background-color: #e0e0e0;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}

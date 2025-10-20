@@ -1,40 +1,67 @@
 const toggle = document.getElementById("toggleMode");
-toggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  toggle.textContent = document.body.classList.contains("dark") ? "🌙 Dark" : "🌞 Light";
-});
-
 const form = document.getElementById("loginForm");
-const username = document.getElementById("username");
-const password = document.getElementById("password");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
 const usernameError = document.getElementById("usernameError");
 const passwordError = document.getElementById("passwordError");
+const loginError = document.getElementById("loginError"); // Ambil elemen error baru
+const card = document.querySelector('.card');
+
+if (toggle) {
+  toggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    toggle.textContent = document.body.classList.contains("dark") ? "🌙 Dark" : "🌞 Light";
+  });
+}
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  let valid = true;
-
+  
   // Reset pesan error
   usernameError.textContent = "";
   passwordError.textContent = "";
-  username.classList.remove("shake");
-  password.classList.remove("shake");
+  loginError.textContent = ""; // Reset error dari server
+  usernameInput.classList.remove("shake");
+  passwordInput.classList.remove("shake");
+  card.classList.remove('shake');
 
-  // Validasi Username
-  if (username.value.trim() === "") {
-    usernameError.textContent = "Username Must Be Filled!";
-    username.classList.add("shake");
+  let valid = true;
+  if (usernameInput.value.trim() === "") {
+    usernameError.textContent = "Username harus diisi!";
+    usernameInput.classList.add("shake");
+    valid = false;
+  }
+  if (passwordInput.value.trim() === "") {
+    passwordError.textContent = "Password harus diisi!";
+    passwordInput.classList.add("shake");
     valid = false;
   }
 
-  // Validasi Password
-  if (password.value.trim() === "") {
-    passwordError.textContent = "Password Must Be Filled!";
-    password.classList.add("shake");
-    valid = false;
-  }
+  if (valid) {
+    const formData = {
+      username: usernameInput.value,
+      password: passwordInput.value,
+      keep: document.getElementById('keep').checked
+    };
 
-  if(valid){
-    form.submit();
+    fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/main-menu'; // Redirect jika sukses
+      } else {
+        // Tampilkan pesan error dari server dan goyangkan kartunya
+        loginError.textContent = data.message;
+        card.classList.add('shake');
+      }
+    })
+    .catch(err => {
+      loginError.textContent = 'Terjadi kesalahan jaringan. Coba lagi.';
+      card.classList.add('shake');
+    });
   }
 });

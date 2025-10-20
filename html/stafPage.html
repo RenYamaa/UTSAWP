@@ -9,56 +9,60 @@
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <img src="../images/Comifuro_logo.png" alt="Comifuro">
-            </div>
+            <div class="logo-text">Staff Order Portal</div>
             <div class="user-info">
-                <div class="dropdown">
-                    <button class="btn-menu" onclick="toggleDropdown()">
-                         Menu
-                    </button>
-                    <div class="dropdown-content" id="dropdownMenu">
-                        <button class="dropdown-item" onclick="signOut()" style="color: #e74c3c;">
-                            <span>🚪</span> Sign Out
-                        </button>
-                    </div>
+                <span id="welcomeMessage">Halo, Staf!</span>
+                <button class="btn-logout" onclick="signOut()">🚪 Keluar</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="page-header">
+                <h2>📦 Daftar Pesanan Masuk</h2>
+                <div class="filter-container">
+                    <label for="statusFilter">Filter Status:</label>
+                    <select id="statusFilter">
+                        <option value="Semua">Semua</option>
+                        <option value="Pending">Pending (Sudah Bayar)</option>
+                        <option value="Diproses">Diproses</option>
+                        <option value="Dikirim">Dikirim</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Dibatalkan">Dibatalkan</option>
+                    </select>
                 </div>
             </div>
-        </div>
-        <div class="orders-table">
-            <div class="search-container">
-                <input type="text" id="staffSearchInput" placeholder="🔍 Cari produk... (nama / ID)">
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Order</th>
+                            <th>Username</th>
+                            <th>Tanggal</th>
+                            <th>Total Harga</th>
+                            <th>Status Bayar</th>
+                            <th>Status Order</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        </tbody>
+                </table>
             </div>
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th>ID Produk</th>
-                        <th>Nama Produk</th>
-                        <th>Harga</th>
-                        <th>Stok</th>
-                        <th>Status</th>
-                        <th>Deskripsi</th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody">
-                    <tr><td colspan="6">Memuat data...</td></tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
-
-    <div class="modal" id="detailModal">
-        <div class="modal-content">
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal">
             <div class="modal-header">
-                <h2>Detail Pesanan</h2>
+                <h2 id="modalOrderId">Detail Pesanan</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div id="modalBody">
-
-            </div>
+            <div id="modalBody" class="modal-body">
+                </div>
         </div>
     </div>
+
 <script src="../script/stafScript.js"></script>
 </body>
 </html>

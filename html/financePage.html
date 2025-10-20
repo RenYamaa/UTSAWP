@@ -1,11 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard Keuangan - Comifuro</title>
+    <link rel="stylesheet" href="../style/financeStyle.css">
 </head>
 <body>
-    Hello World Also
+    <div class="container">
+        <div class="header">
+            <div class="logo-text">Finance Portal</div>
+            <div class="user-info">
+                <div id="welcomeMessage">Selamat Datang, Finance!</div>
+                <button class="btn-logout" onclick="signOut()">🚪 Keluar</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="page-header">
+                <h2 class="page-title">📊 Verifikasi Transaksi</h2>
+                <div class="filter-group">
+                    <label for="statusFilter">Filter Status:</label>
+                    <select id="statusFilter">
+                        <option value="Menunggu">Menunggu</option>
+                        <option value="Berhasil">Berhasil</option>
+                        <option value="Gagal">Gagal</option>
+                        <option value="Semua">Tampilkan Semua</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Transaksi</th>
+                            <th>ID Order</th>
+                            <th>Username</th>
+                            <th>Tanggal</th>
+                            <th>Total Bayar</th>
+                            <th>Metode</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="../script/financeScript.js"></script>
 </body>
 </html>

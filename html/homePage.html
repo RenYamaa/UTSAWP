@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comifuro Database</title>
+    <link rel="stylesheet" href="../style/homeStyle.css"> 
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">
+            <img src="../images/Comifuro_logo.png" alt="Comifuro Logo" class="comifuro-logo">
+        </div>
+        <nav>
+            <a href="/login" class="login-button">Login</a>
+        </nav>
+    </header>
+
+    <main class="product-catalog">
+        <h1>Katalog Produk Artprint</h1>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Cari produk berdasarkan nama..." onkeyup="searchProducts()">
+        </div>
+
+        <div class="filter-controls">
+            <button class="filter-btn active" data-filter="all">Tampilkan Semua</button>
+            <button class="filter-btn" data-filter="A4">A4 Artprint</button>
+            <button class="filter-btn" data-filter="A5">A5 Artprint</button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+        </div>
+    </main>
+    
+    <script src="../script/homeScript.js"></script> </body>
+</html>
