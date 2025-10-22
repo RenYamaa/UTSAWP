@@ -307,92 +307,104 @@ app.delete('/api/cart/remove/:cartId', checkAuth, (req, res) => {
 });
 
 // POST proses checkout
-// GANTI LAGI KESELURUHAN FUNGSI CHECKOUT DENGAN VERSI FINAL INI DI server.js
-
 app.post('/api/checkout', checkAuth, (req, res) => {
     const userId = req.session.user.User_ID;
-    // Terima paymentMethod dari request body
     const { address, paymentMethod } = req.body;
 
     if (!paymentMethod) {
         return res.status(400).json({ message: 'Metode pembayaran wajib dipilih.' });
     }
 
-    conn.beginTransaction(err => {
-        if (err) { return res.status(500).json({ message: 'Gagal memulai transaksi' }); }
+    // 1. "Pinjam" koneksi dari kolam
+    conn.getConnection((err, connection) => {
+        if (err) {
+            console.error('Gagal dapat koneksi dari pool:', err);
+            return res.status(500).json({ message: 'Gagal mendapatkan koneksi' });
+        }
 
-        const getCartSql = "SELECT c.Jumlah, p.ID_Product, p.Product_Name, p.Price, p.Stock FROM cf_carts c JOIN cf_products p ON c.ID_Product = p.ID_Product WHERE c.User_ID = ?";
-        
-        conn.query(getCartSql, [userId], (err, cartItems) => {
-            if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal mengambil keranjang' })); }
-            if (cartItems.length === 0) { return conn.rollback(() => res.status(400).json({ message: 'Keranjang kosong' })); }
-
-            let totalHarga = 0;
-            for(const item of cartItems) {
-                if (item.Jumlah > item.Stock) {
-                    return conn.rollback(() => res.status(400).json({ message: `Stok produk tidak mencukupi untuk ${item.Product_Name}`}));
-                }
-                totalHarga += item.Jumlah * item.Price;
+        // 2. Mulai transaksi dengan 'connection'
+        connection.beginTransaction(err => {
+            if (err) {
+                connection.release(); // 3. Selalu 'release'
+                return res.status(500).json({ message: 'Gagal memulai transaksi' });
             }
 
-            const getLastOrderIdSql = "SELECT Order_ID FROM cf_order ORDER BY Order_ID DESC LIMIT 1";
-            conn.query(getLastOrderIdSql, (err, lastIdResult) => {
-                if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal saat generate Order ID' })); }
+            const getCartSql = "SELECT c.Jumlah, p.ID_Product, p.Product_Name, p.Price, p.Stock FROM cf_carts c JOIN cf_products p ON c.ID_Product = p.ID_Product WHERE c.User_ID = ?";
+            
+            connection.query(getCartSql, [userId], (err, cartItems) => {
+                if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal mengambil keranjang' }); }); }
+                if (cartItems.length === 0) { return connection.rollback(() => { connection.release(); res.status(400).json({ message: 'Keranjang kosong' }); }); }
 
-                let nextOrderNumber = 1;
-                if (lastIdResult.length > 0) {
-                    nextOrderNumber = parseInt(lastIdResult[0].Order_ID.replace('O', ''), 10) + 1;
+                let totalHarga = 0;
+                for(const item of cartItems) {
+                    if (item.Jumlah > item.Stock) {
+                        return connection.rollback(() => { connection.release(); res.status(400).json({ message: `Stok produk tidak mencukupi untuk ${item.Product_Name}`}); });
+                    }
+                    totalHarga += item.Jumlah * item.Price;
                 }
-                const orderId = 'O' + String(nextOrderNumber).padStart(3, '0');
 
-                const insertOrderSql = "INSERT INTO cf_order (Order_ID, User_ID, Total_Harga, Payment_Status, Alamat) VALUES (?, ?, ?, 'Belum Bayar', ?)";
-                conn.query(insertOrderSql, [orderId, userId, totalHarga, address], (err, orderResult) => {
-                    if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal membuat order' })); }
+                const getLastOrderIdSql = "SELECT Order_ID FROM cf_order ORDER BY Order_ID DESC LIMIT 1";
+                connection.query(getLastOrderIdSql, (err, lastIdResult) => {
+                    if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal saat generate Order ID' }); }); }
 
-                    const orderDetailsValues = cartItems.map(item => 
-                        ['D' + uuidv4().substring(0, 18), orderId, item.ID_Product, item.Jumlah, item.Price, item.Jumlah * item.Price]
-                    );
-                    const insertDetailsSql = "INSERT INTO cf_orderdetails (Details_ID, Order_ID, ID_Product, Jumlah, Harga_Satuan, Subtotal) VALUES ?";
-                    
-                    conn.query(insertDetailsSql, [orderDetailsValues], (err, detailsResult) => {
-                        if (err) { console.error(err); return conn.rollback(() => res.status(500).json({ message: 'Gagal menyimpan detail order' })); }
+                    let nextOrderNumber = 1;
+                    if (lastIdResult.length > 0) {
+                        nextOrderNumber = parseInt(lastIdResult[0].Order_ID.replace('O', ''), 10) + 1;
+                    }
+                    const orderId = 'O' + String(nextOrderNumber).padStart(3, '0');
 
-                        const getLastTransactionIdSql = "SELECT Transaction_ID FROM cf_transaction ORDER BY Transaction_ID DESC LIMIT 1";
-                        conn.query(getLastTransactionIdSql, (err, lastTransIdResult) => {
-                            if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal saat generate Transaction ID' })); }
+                    const insertOrderSql = "INSERT INTO cf_order (Order_ID, User_ID, Total_Harga, Payment_Status, Alamat) VALUES (?, ?, ?, 'Belum Bayar', ?)";
+                    connection.query(insertOrderSql, [orderId, userId, totalHarga, address], (err, orderResult) => {
+                        if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal membuat order' }); }); }
 
-                            let nextTransNumber = 1;
-                            if (lastTransIdResult.length > 0) {
-                                nextTransNumber = parseInt(lastTransIdResult[0].Transaction_ID.replace('T', ''), 10) + 1;
-                            }
-                            const transactionId = 'T' + String(nextTransNumber).padStart(3, '0');
-                            
-                            // Gunakan variabel paymentMethod di sini
-                            const insertTransactionSql = "INSERT INTO cf_transaction (Transaction_ID, Order_ID, Total_Payment, Payment_Method) VALUES (?, ?, ?, ?)";
-                            conn.query(insertTransactionSql, [transactionId, orderId, totalHarga, paymentMethod], (err, transResult) => {
-                                if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal membuat transaksi' })); }
+                        const orderDetailsValues = cartItems.map(item => 
+                            ['D' + uuidv4().substring(0, 18), orderId, item.ID_Product, item.Jumlah, item.Price, item.Jumlah * item.Price]
+                        );
+                        const insertDetailsSql = "INSERT INTO cf_orderdetails (Details_ID, Order_ID, ID_Product, Jumlah, Harga_Satuan, Subtotal) VALUES ?";
+                        
+                        connection.query(insertDetailsSql, [orderDetailsValues], (err, detailsResult) => {
+                            if (err) { console.error(err); return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal menyimpan detail order' }); }); }
+
+                            const getLastTransactionIdSql = "SELECT Transaction_ID FROM cf_transaction ORDER BY Transaction_ID DESC LIMIT 1";
+                            connection.query(getLastTransactionIdSql, (err, lastTransIdResult) => {
+                                if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal saat generate Transaction ID' }); }); }
+
+                                let nextTransNumber = 1;
+                                if (lastTransIdResult.length > 0) {
+                                    nextTransNumber = parseInt(lastTransIdResult[0].Transaction_ID.replace('T', ''), 10) + 1;
+                                }
+                                const transactionId = 'T' + String(nextTransNumber).padStart(3, '0');
                                 
-                                const clearCartSql = "DELETE FROM cf_carts WHERE User_ID = ?";
-                                conn.query(clearCartSql, [userId], (err, clearResult) => {
-                                    if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal mengosongkan keranjang' })); }
+                                const insertTransactionSql = "INSERT INTO cf_transaction (Transaction_ID, Order_ID, Total_Payment, Payment_Method) VALUES (?, ?, ?, ?)";
+                                connection.query(insertTransactionSql, [transactionId, orderId, totalHarga, paymentMethod], (err, transResult) => {
+                                    if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal membuat transaksi' }); }); }
+                                    
+                                    const clearCartSql = "DELETE FROM cf_carts WHERE User_ID = ?";
+                                    connection.query(clearCartSql, [userId], (err, clearResult) => {
+                                        if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal mengosongkan keranjang' }); }); }
 
-                                    let updateStockPromises = cartItems.map(item => {
-                                        return new Promise((resolve, reject) => {
-                                            const updateStockSql = "UPDATE cf_products SET Stock = Stock - ? WHERE ID_Product = ?";
-                                            conn.query(updateStockSql, [item.Jumlah, item.ID_Product], (err, result) => {
-                                                if (err) return reject(err);
-                                                resolve(result);
+                                        let updateStockPromises = cartItems.map(item => {
+                                            return new Promise((resolve, reject) => {
+                                                const updateStockSql = "UPDATE cf_products SET Stock = Stock - ? WHERE ID_Product = ?";
+                                                connection.query(updateStockSql, [item.Jumlah, item.ID_Product], (err, result) => {
+                                                    if (err) return reject(err);
+                                                    resolve(result);
+                                                });
                                             });
                                         });
-                                    });
 
-                                    Promise.all(updateStockPromises).then(() => {
-                                        conn.commit(err => {
-                                            if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal commit transaksi' })); }
-                                            res.json({ success: true, message: 'Checkout berhasil! Silakan lakukan pembayaran.' });
+                                        Promise.all(updateStockPromises).then(() => {
+                                            // 4. Commit jika semua sukses
+                                            connection.commit(err => {
+                                                if (err) { return connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal commit transaksi' }); }); }
+                                                
+                                                // 5. SUKSES! Kembalikan koneksi
+                                                connection.release();
+                                                res.json({ success: true, message: 'Checkout berhasil! Silakan lakukan pembayaran.' });
+                                            });
+                                        }).catch(err => {
+                                            connection.rollback(() => { connection.release(); res.status(500).json({ message: 'Gagal update stok produk' }); });
                                         });
-                                    }).catch(err => {
-                                        conn.rollback(() => res.status(500).json({ message: 'Gagal update stok produk' }));
                                     });
                                 });
                             });
@@ -453,34 +465,67 @@ app.put('/api/transactions/update/:transactionId', checkAuth, (req, res) => {
     const { transactionId } = req.params;
     const { status } = req.body; // 'Berhasil' atau 'Gagal'
 
-    conn.beginTransaction(err => {
-        if (err) { return res.status(500).json({ message: 'Gagal memulai transaksi' }); }
+    // 1. "Pinjam" koneksi dari kolam (conn sekarang adalah pool)
+    conn.getConnection((err, connection) => {
+        if (err) {
+            console.error('Gagal dapat koneksi dari pool:', err);
+            return res.status(500).json({ message: 'Gagal mendapatkan koneksi' });
+        }
 
-        const updateTransactionSql = "UPDATE cf_transaction SET Payment_Status = ? WHERE Transaction_ID = ?";
-        conn.query(updateTransactionSql, [status, transactionId], (err, result) => {
-            if (err || result.affectedRows === 0) {
-                return conn.rollback(() => res.status(500).json({ message: 'Gagal update status transaksi.' }));
+        // 2. Mulai transaksi dengan 'connection' (bukan 'conn' lagi)
+        connection.beginTransaction(err => {
+            if (err) {
+                connection.release(); // 3. Selalu 'release' jika error
+                return res.status(500).json({ message: 'Gagal memulai transaksi' });
             }
 
-            // Dapatkan Order_ID dari transaksi
-            const getOrderSql = "SELECT Order_ID FROM cf_transaction WHERE Transaction_ID = ?";
-            conn.query(getOrderSql, [transactionId], (err, transactions) => {
-                if (err || transactions.length === 0) {
-                    return conn.rollback(() => res.status(500).json({ message: 'Gagal menemukan order terkait.' }));
+            const updateTransactionSql = "UPDATE cf_transaction SET Payment_Status = ? WHERE Transaction_ID = ?";
+            connection.query(updateTransactionSql, [status, transactionId], (err, result) => {
+                if (err || result.affectedRows === 0) {
+                    // 3. Rollback dan release
+                    return connection.rollback(() => {
+                        connection.release();
+                        res.status(500).json({ message: 'Gagal update status transaksi.' });
+                    });
                 }
 
-                const orderId = transactions[0].Order_ID;
-                const newOrderStatus = status === 'Berhasil' ? 'Sudah Bayar' : 'Belum Bayar';
-
-                const updateOrderSql = "UPDATE cf_order SET Payment_Status = ? WHERE Order_ID = ?";
-                conn.query(updateOrderSql, [newOrderStatus, orderId], (err, orderResult) => {
-                    if (err) {
-                        return conn.rollback(() => res.status(500).json({ message: 'Gagal update status order.' }));
+                const getOrderSql = "SELECT Order_ID FROM cf_transaction WHERE Transaction_ID = ?";
+                connection.query(getOrderSql, [transactionId], (err, transactions) => {
+                    if (err || transactions.length === 0) {
+                        // 3. Rollback dan release
+                        return connection.rollback(() => {
+                            connection.release();
+                            res.status(500).json({ message: 'Gagal menemukan order terkait.' });
+                        });
                     }
 
-                    conn.commit(err => {
-                        if (err) { return conn.rollback(() => res.status(500).json({ message: 'Gagal commit transaksi.' })); }
-                        res.json({ message: `Status transaksi berhasil diubah menjadi ${status}` });
+                    const orderId = transactions[0].Order_ID;
+                    const newOrderStatus = status === 'Berhasil' ? 'Sudah Bayar' : 'Belum Bayar';
+
+                    const updateOrderSql = "UPDATE cf_order SET Payment_Status = ? WHERE Order_ID = ?";
+                    connection.query(updateOrderSql, [newOrderStatus, orderId], (err, orderResult) => {
+                        if (err) {
+                            // 3. Rollback dan release
+                            return connection.rollback(() => {
+                                connection.release();
+                                res.status(500).json({ message: 'Gagal update status order.' });
+                            });
+                        }
+
+                        // 4. Jika semua query sukses, commit
+                        connection.commit(err => {
+                            if (err) {
+                                // 3. Rollback dan release
+                                return connection.rollback(() => {
+                                    connection.release();
+                                    res.status(500).json({ message: 'Gagal commit transaksi.' });
+                                });
+                            }
+                            
+                            // 5. SUKSES! Kembalikan koneksi ke kolam
+                            connection.release();
+                            res.json({ message: `Status transaksi berhasil diubah menjadi ${status}` });
+                        });
                     });
                 });
             });
